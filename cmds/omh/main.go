@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
+	"strings"
 
+	"github.com/iancoleman/strcase"
+	log "github.com/sirupsen/logrus"
+	omh "github.com/ukautz/obsidian-meets-hugo/pkg"
 	"github.com/urfave/cli/v2"
 )
 
@@ -36,19 +39,107 @@ func main() {
 			Usage:   "Tag to include (accept list - accepts all, if unset)",
 		},
 		&cli.StringSliceFlag{
-			Name:    "exclude-tags",
+			Name:    "exclude-tag",
 			Aliases: []string{"e"},
 			Usage:   "Tag to exclude (reject list - reject none, if unset)",
 		},
+		&cli.StringSliceFlag{
+			Name:    "front-matter",
+			Aliases: []string{"F"},
+			Usage:   "Additional Front Matter, added to all generated Hugo pages, in the form `key:value`",
+		},
+		&cli.StringFlag{
+			Name:    "tags-key",
+			Aliases: []string{"t"},
+			Usage:   "Name of Front Matter attribute to use for tags (so that taxonomy in Hugo can be used)",
+			Value:   "tags",
+		},
+		&cli.BoolFlag{
+			Name:    "debug",
+			Aliases: []string{"D"},
+			Usage:   "Enable debug logs",
+		},
 	}
 	app.Action = func(c *cli.Context) error {
-		todo()
-		return nil
+		if c.Bool("debug") {
+			log.SetLevel(log.DebugLevel)
+		}
+
+		directory, err := omh.LoadObsidianDirectory(c.String("obsidian-root"), createFilter(c))
+		if err != nil {
+			return err
+		}
+
+		// is there additional front matter?
+		addFrontMatter := make(map[string]interface{})
+		for _, matter := range c.StringSlice("front-matter") {
+			kv := strings.SplitN(matter, ":", 2)
+			addFrontMatter[kv[0]] = kv[1]
+		}
+
+		converter := &omh.Converter{
+			ObsidianRoot: directory,
+			HugoRoot:     c.String("hugo-root"),
+			SubPath:      c.String("sub-path"),
+			FrontMatter:  addFrontMatter,
+			ConvertName:  strcase.ToKebab,
+			TagsKey:      c.String("tags-key"),
+		}
+
+		return converter.Run()
 	}
 
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func createFilter(c *cli.Context) omh.ObsidianFilter {
+	filters := make([]omh.ObsidianFilter, 0)
+	if includes := c.StringSlice("include-tag"); len(includes) > 0 {
+		included := strsToBoolMap(includes)
+		filters = append(filters, func(note omh.ObsidianNote) bool {
+			for _, tag := range note.FrontMatter.Strings("tags") {
+				if included[tag] {
+					return true
+				}
+			}
+			return false
+		})
+	}
+
+	if excludes := c.StringSlice("exclude-tag"); len(excludes) > 0 {
+		filters = append(filters, func(note omh.ObsidianNote) bool {
+			excluded := strsToBoolMap(excludes)
+			for _, tag := range note.FrontMatter.Strings("tags") {
+				if excluded[tag] {
+					return false
+				}
+			}
+			return true
+		})
+	}
+
+	if len(filters) == 0 {
+		return nil
+	}
+
+	return func(note omh.ObsidianNote) bool {
+		for _, f := range filters {
+			if !f(note) {
+				return false
+			}
+		}
+		return true
+	}
+}
+
+func strsToBoolMap(strs []string) map[string]bool {
+	r := make(map[string]bool)
+	for _, str := range strs {
+		r[str] = true
+	}
+	return r
 }
 
 func todo() {
