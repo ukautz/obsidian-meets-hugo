@@ -184,7 +184,7 @@ func TestObsidianDirectory_LinkMap(t *testing.T) {
 }
 
 func TestLoadObsidianDirectory(t *testing.T) {
-	directory, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source", "Sub Directory"), nil)
+	directory, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source", "Sub Directory"), nil, false)
 	require.NoError(t, err)
 
 	assert.Equal(t, "Sub Directory", directory.Name)
@@ -195,7 +195,7 @@ func TestLoadObsidianDirectory(t *testing.T) {
 }
 
 func TestLoadObsidianDirectory_Recursive(t *testing.T) {
-	directory, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source"), nil)
+	directory, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source"), nil, true)
 	require.NoError(t, err)
 
 	assert.Equal(t, "source", directory.Name)
@@ -213,10 +213,24 @@ func TestLoadObsidianDirectory_Recursive(t *testing.T) {
 	assert.Equal(t, "Additional Note", directory.Childs[0].Notes[0].Title)
 }
 
+func TestLoadObsidianDirectory_NotRecursive(t *testing.T) {
+	directory, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source"), nil, false)
+	require.NoError(t, err)
+
+	assert.Equal(t, "source", directory.Name)
+	assert.Empty(t, directory.Files)
+
+	require.Len(t, directory.Notes, 2)
+	assert.Equal(t, "Other Note", directory.Notes[0].Title)
+	assert.Equal(t, "Some Note", directory.Notes[1].Title)
+
+	require.Len(t, directory.Childs, 0)
+}
+
 func TestLoadObsidianDirectory_Filtered(t *testing.T) {
 	directory, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source"), func(on omh.ObsidianNote) bool {
 		return on.FrontMatter.Has("more matter")
-	})
+	}, true)
 	require.NoError(t, err)
 
 	assert.Equal(t, "source", directory.Name)

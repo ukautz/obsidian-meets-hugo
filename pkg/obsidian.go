@@ -108,7 +108,7 @@ func (directory ObsidianDirectory) linkMap(convert ConvertName, to map[string]st
 }
 
 // LoadObsidianDirectory reads all notes and sub-directories within a directory in an Obsidian vault
-func LoadObsidianDirectory(path string, filter ObsidianFilter) (root ObsidianDirectory, err error) {
+func LoadObsidianDirectory(path string, filter ObsidianFilter, recurse bool) (root ObsidianDirectory, err error) {
 	fis, err := ioutil.ReadDir(path)
 	if err != nil {
 		return
@@ -130,8 +130,11 @@ func LoadObsidianDirectory(path string, filter ObsidianFilter) (root ObsidianDir
 
 		// recurse directories
 		if fi.IsDir() {
+			if !recurse {
+				continue
+			}
 			log.WithField("directory", p).Debug("traverse sub-directory")
-			sub, err := LoadObsidianDirectory(p, filter)
+			sub, err := LoadObsidianDirectory(p, filter, true)
 			if err != nil {
 				return ObsidianDirectory{}, err
 			} else if sub.Empty() {

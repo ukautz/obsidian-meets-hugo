@@ -17,7 +17,7 @@ func TestConverter_Run(t *testing.T) {
 	output := filepath.Join("fixtures", "dest")
 	defer os.RemoveAll(output)
 
-	root, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source"), nil)
+	root, err := omh.LoadObsidianDirectory(filepath.Join("fixtures", "source"), nil, true)
 	require.NoError(t, err)
 
 	converter := omh.Converter{

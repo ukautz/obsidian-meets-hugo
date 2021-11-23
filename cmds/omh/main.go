@@ -55,6 +55,11 @@ func main() {
 			Value:   "tags",
 		},
 		&cli.BoolFlag{
+			Name:    "recursive",
+			Aliases: []string{"R"},
+			Usage:   "Whether to recurse the Obsidian Root directory (or not and then ignore sub directories..)",
+		},
+		&cli.BoolFlag{
 			Name:    "debug",
 			Aliases: []string{"D"},
 			Usage:   "Enable debug logs",
@@ -65,7 +70,8 @@ func main() {
 			log.SetLevel(log.DebugLevel)
 		}
 
-		directory, err := omh.LoadObsidianDirectory(c.String("obsidian-root"), createFilter(c))
+		recurse := c.Bool("recursive")
+		directory, err := omh.LoadObsidianDirectory(c.String("obsidian-root"), createFilter(c), recurse)
 		if err != nil {
 			return err
 		}
