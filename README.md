@@ -1,3 +1,5 @@
+[![codecov](https://codecov.io/gh/ukautz/obsidian-meets-hugo/branch/main/graph/badge.svg?token=89QLLNR10S)](https://codecov.io/gh/ukautz/obsidian-meets-hugo)
+
 # `omh` - Obsidian Meets Hugo
 
 Command line tool to marry [Obsidian](https://obsidian.md/) vaults to [Hugo](https://gohugo.io/) published websites.
