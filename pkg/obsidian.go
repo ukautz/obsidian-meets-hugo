@@ -2,14 +2,23 @@ package omh
 
 import (
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/gernest/front"
 	log "github.com/sirupsen/logrus"
 )
+
+var obsidianDateFormats = []string{
+	time.RFC3339,
+	"2006-01-02 15:04:05",
+	"2006-01-02 15:04",
+	"2006-01-02",
+}
 
 // ObsidianFilter includes or excludes a note
 type ObsidianFilter func(ObsidianNote) bool
@@ -36,15 +45,41 @@ func (note ObsidianNote) HugoFrontMatter(added map[string]interface{}) map[strin
 	hugo["title"] = note.Title
 
 	// if date exists, use that
-	if note.Has("date updated") {
-		hugo["date"] = hugo["date updated"]
-	} else if note.Has("date created") {
-		hugo["date"] = hugo["date created"]
+	if _, hasDate := hugo["date"]; !hasDate {
+		date, err := note.extractDate()
+		if err != nil {
+			log.Warnf("failed to extract date for %s: %s", note.Title, err)
+		} else if date != nil {
+			hugo["date"] = date.Format(time.RFC3339)
+		}
 	}
 
 	// cleanup
 	delete(hugo, "aliases")
 	return hugo
+}
+
+func (note ObsidianNote) extractDate() (*time.Time, error) {
+
+	var date string
+	if note.Has("date updated") {
+		date = note.String("date updated")
+	} else if note.Has("date created") {
+		date = note.String("date created")
+	}
+
+	if date == "" {
+		return nil, nil
+	}
+
+	for _, format := range obsidianDateFormats {
+		d, err := time.Parse(format, date)
+		if err == nil {
+			return &d, nil
+		}
+	}
+
+	return nil, fmt.Errorf("unsupported date `%s`", date)
 }
 
 // LoadObsidianNote loads an Obsidian note from disk at given path

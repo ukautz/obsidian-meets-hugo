@@ -43,31 +43,86 @@ func TestObsidianNote_HugoFrontMatter(t *testing.T) {
 		"date from update": {
 			from: omh.ObsidianNote{
 				FrontMatter: omh.FrontMatter{
-					"date updated": "the-update-date",
-					"date created": "the-create-date",
+					"date updated": "2021-04-08",
+					"date created": "2021-03-06",
 				},
 				Title:   "the-title",
 				Content: "whatever",
 			},
 			to: map[string]interface{}{
 				"title":        "the-title",
-				"date":         "the-update-date",
-				"date updated": "the-update-date",
-				"date created": "the-create-date",
+				"date":         "2021-04-08T00:00:00Z",
+				"date updated": "2021-04-08",
+				"date created": "2021-03-06",
 			},
 		},
 		"date from create": {
 			from: omh.ObsidianNote{
 				FrontMatter: omh.FrontMatter{
-					"date created": "the-create-date",
+					"date created": "2021-03-06",
 				},
 				Title:   "the-title",
 				Content: "whatever",
 			},
 			to: map[string]interface{}{
 				"title":        "the-title",
-				"date":         "the-create-date",
-				"date created": "the-create-date",
+				"date":         "2021-03-06T00:00:00Z",
+				"date created": "2021-03-06",
+			},
+		},
+		"date with hour and minute": {
+			from: omh.ObsidianNote{
+				FrontMatter: omh.FrontMatter{
+					"date created": "2021-03-06 13:14",
+				},
+				Title:   "the-title",
+				Content: "whatever",
+			},
+			to: map[string]interface{}{
+				"title":        "the-title",
+				"date":         "2021-03-06T13:14:00Z",
+				"date created": "2021-03-06 13:14",
+			},
+		},
+		"date with hour and minute and second": {
+			from: omh.ObsidianNote{
+				FrontMatter: omh.FrontMatter{
+					"date created": "2021-03-06 13:14:15",
+				},
+				Title:   "the-title",
+				Content: "whatever",
+			},
+			to: map[string]interface{}{
+				"title":        "the-title",
+				"date":         "2021-03-06T13:14:15Z",
+				"date created": "2021-03-06 13:14:15",
+			},
+		},
+		"date in RFC3339": {
+			from: omh.ObsidianNote{
+				FrontMatter: omh.FrontMatter{
+					"date created": "2021-03-06T13:14:15Z",
+				},
+				Title:   "the-title",
+				Content: "whatever",
+			},
+			to: map[string]interface{}{
+				"title":        "the-title",
+				"date":         "2021-03-06T13:14:15Z",
+				"date created": "2021-03-06T13:14:15Z",
+			},
+		},
+		"date in unssuported": {
+			from: omh.ObsidianNote{
+				FrontMatter: omh.FrontMatter{
+					"date created": "2021-03-06T13",
+				},
+				Title:   "the-title",
+				Content: "whatever",
+			},
+			to: map[string]interface{}{
+				"title":        "the-title",
+				"date created": "2021-03-06T13",
 			},
 		},
 		"drop those aliases": {

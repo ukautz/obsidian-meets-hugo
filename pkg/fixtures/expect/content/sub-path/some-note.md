@@ -2,7 +2,7 @@
 add: me
 alt-tags:
 - aaa
-date: "2021-12-24 11:12:13"
+date: "2021-12-24T11:12:13Z"
 date created: "2021-12-23 11:12:13"
 date updated: "2021-12-24 11:12:13"
 title: Some Note
