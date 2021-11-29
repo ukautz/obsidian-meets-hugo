@@ -265,7 +265,7 @@ func TestLoadObsidianDirectory_Recursive(t *testing.T) {
 	assert.Empty(t, directory.Childs[0].Childs)
 	assert.Equal(t, []string{"Something Static.txt"}, directory.Childs[0].Files)
 	require.Len(t, directory.Childs[0].Notes, 1)
-	assert.Equal(t, "Additional Note", directory.Childs[0].Notes[0].Title)
+	assert.Contains(t, "Additional Note", directory.Childs[0].Notes[0].Title)
 }
 
 func TestLoadObsidianDirectory_NotRecursive(t *testing.T) {

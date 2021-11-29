@@ -11,3 +11,10 @@ title: Other Note
 
 This one links to [Some Note](/sub-path/some-note/) and of course
 to the other [with a different title](/sub-path/sub-directory/additional-note/)
+
+```
+Has a multi-line
+Code Block
+```
+
+Fin

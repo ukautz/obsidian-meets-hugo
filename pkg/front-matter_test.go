@@ -1,6 +1,7 @@
 package omh_test
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -57,4 +58,32 @@ and the body and stuff`))
 		"baz": []interface{}{"one", "two", 3},
 	}, fm)
 	assert.Equal(t, "and the body and stuff", body)
+}
+
+func TestParseFrontMatterMarkdown_FrontMatterNotCode(t *testing.T) {
+	rawMeta := strings.Join([]string{
+		"---",
+		"foo: 1",
+		"---",
+	}, "\n")
+	rawBody := strings.Join([]string{
+		"Must not be confused:",
+		"",
+		"```",
+		"---",
+		"valid: code block",
+		"foo: 2",
+		"---",
+		"```",
+		"",
+		"Fin",
+	}, "\n")
+
+	fm, body, err := omh.ParseFrontMatterMarkdown([]byte(rawMeta + "\n\n" + rawBody))
+
+	require.Nil(t, err)
+	assert.Equal(t, omh.FrontMatter{
+		"foo": 1,
+	}, fm)
+	assert.Equal(t, rawBody, body)
 }

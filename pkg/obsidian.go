@@ -9,7 +9,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gernest/front"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -187,7 +186,7 @@ func LoadObsidianDirectory(path string, filter ObsidianFilter, recurse bool) (ro
 			if err != nil {
 
 				// ignore markdown files that lack front-matter
-				if errors.Is(err, front.ErrUnknownDelim) {
+				if errors.Is(err, ErrNoFrontMatter) {
 					log.WithFields(log.Fields{"file": p}).Warn("ignore file with missing front matter")
 					continue
 				}

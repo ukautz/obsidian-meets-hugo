@@ -1,10 +1,18 @@
 package omh
 
 import (
+	"bufio"
 	"bytes"
+	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/gernest/front"
+	"gopkg.in/yaml.v2"
+)
+
+var (
+	ErrNoFrontMatter = errors.New("missing front matter")
 )
 
 var frontMatter *front.Matter
@@ -55,15 +63,38 @@ func (fm FrontMatter) Strings(key string) []string {
 }
 
 func ParseFrontMatterMarkdown(content []byte) (FrontMatter, string, error) {
-	raw, body, err := frontMatter.Parse(bytes.NewReader(content))
-	if err != nil {
-		return FrontMatter{}, "", err
+	metaLines := make([]string, 0)
+	bodyLines := make([]string, 0)
+	state := 0
+
+	scanner := bufio.NewScanner(bytes.NewReader(content))
+	for scanner.Scan() {
+		line := scanner.Text()
+		if state < 2 && line == "---" {
+			state++
+			continue
+		}
+		if state == 1 {
+			metaLines = append(metaLines, line)
+		} else if state == 2 {
+			bodyLines = append(bodyLines, line)
+		}
+	}
+	if len(metaLines) == 0 {
+		return nil, "", ErrNoFrontMatter
 	}
 
-	return FrontMatter(raw), body, nil
+	meta := make(map[string]interface{})
+	err := yaml.Unmarshal([]byte(strings.Join(metaLines, "\n")), &meta)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return FrontMatter(meta), strings.TrimSpace(strings.Join(bodyLines, "\n")), nil
 }
 
 func init() {
 	frontMatter = front.NewMatter()
 	frontMatter.Handle("---", front.YAMLHandler)
+
 }
