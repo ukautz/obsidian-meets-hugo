@@ -11,4 +11,4 @@ title: Some Note
 
 Link to [Other Note](/sub-path/other-note/) and to Note Existing Note should all be fine.
 
-![Something Static.txt](/sub-path/sub-directory/something-static.txt/) is also included
+![Something Static.txt](/sub-path/sub-directory/something-static.txt) is also included

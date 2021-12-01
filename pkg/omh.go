@@ -7,7 +7,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
@@ -194,7 +193,7 @@ func (c Converter) convertNote(note ObsidianNote) ([]byte, error) {
 			return title
 		}
 
-		return fmt.Sprintf("[%s](%s)", title, "/"+path.Join(c.SubPath, target)+"/")
+		return fmt.Sprintf("[%s](/%s/%s)", title, c.SubPath, target)
 	})
 	buf.WriteString(content)
 

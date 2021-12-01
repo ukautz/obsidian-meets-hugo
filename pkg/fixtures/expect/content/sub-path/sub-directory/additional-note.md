@@ -11,3 +11,5 @@ title: Additional Note
 
 
 Additional Note referencing [Other Note](/sub-path/other-note/) is fine..
+
+![Circle Thing.svg](/sub-path/sub-directory/circle-thing.svg)

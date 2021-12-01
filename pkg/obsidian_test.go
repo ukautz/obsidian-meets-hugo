@@ -182,8 +182,8 @@ func TestObsidianDirectory_LinkMap(t *testing.T) {
 			},
 			linkMap: map[string]string{
 
-				"Foo Bar": "foo bar",
-				"Bla Bla": "bla bla",
+				"Foo Bar": "foo bar/",
+				"Bla Bla": "bla bla/",
 			},
 		},
 		"leveled": {
@@ -219,14 +219,14 @@ func TestObsidianDirectory_LinkMap(t *testing.T) {
 				},
 			},
 			linkMap: map[string]string{
-				"Bla Level 1":  "bla level 1",
-				"Bla Level 2a": "sub directory 1/bla level 2a",
-				"Bla Level 2b": "sub directory 2/bla level 2b",
-				"Bla Level 3":  "sub directory 1/sub directory 3/bla level 3",
-				"Foo Level 1":  "foo level 1",
-				"Foo Level 2a": "sub directory 1/foo level 2a",
-				"Foo Level 2b": "sub directory 2/foo level 2b",
-				"Foo Level 3":  "sub directory 1/sub directory 3/foo level 3",
+				"Bla Level 1":  "bla level 1/",
+				"Bla Level 2a": "sub directory 1/bla level 2a/",
+				"Bla Level 2b": "sub directory 2/bla level 2b/",
+				"Bla Level 3":  "sub directory 1/sub directory 3/bla level 3/",
+				"Foo Level 1":  "foo level 1/",
+				"Foo Level 2a": "sub directory 1/foo level 2a/",
+				"Foo Level 2b": "sub directory 2/foo level 2b/",
+				"Foo Level 3":  "sub directory 1/sub directory 3/foo level 3/",
 			},
 		},
 	}
@@ -244,7 +244,7 @@ func TestLoadObsidianDirectory(t *testing.T) {
 
 	assert.Equal(t, "Sub Directory", directory.Name)
 	assert.Empty(t, directory.Childs)
-	assert.Equal(t, []string{"Something Static.txt"}, directory.Files)
+	assert.Equal(t, []string{"Circle Thing.svg", "Something Static.txt"}, directory.Files)
 	require.Len(t, directory.Notes, 1)
 	assert.Equal(t, "Additional Note", directory.Notes[0].Title)
 }
@@ -263,7 +263,7 @@ func TestLoadObsidianDirectory_Recursive(t *testing.T) {
 	require.Len(t, directory.Childs, 1)
 	assert.Equal(t, "Sub Directory", directory.Childs[0].Name)
 	assert.Empty(t, directory.Childs[0].Childs)
-	assert.Equal(t, []string{"Something Static.txt"}, directory.Childs[0].Files)
+	assert.Equal(t, []string{"Circle Thing.svg", "Something Static.txt"}, directory.Childs[0].Files)
 	require.Len(t, directory.Childs[0].Notes, 1)
 	assert.Contains(t, "Additional Note", directory.Childs[0].Notes[0].Title)
 }

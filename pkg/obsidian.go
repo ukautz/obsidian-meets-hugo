@@ -134,7 +134,7 @@ func (directory ObsidianDirectory) linkMap(convert ConvertName, to map[string]st
 				"target2": target,
 			}).Warn("duplicate link found (same Obsidian note in different directories?)")
 		}
-		to[note.Title] = target
+		to[note.Title] = target + "/"
 	}
 	for _, sub := range directory.Childs {
 		sub.linkMap(convert, to, path.Join(prefix, convert(sub.Name)))
