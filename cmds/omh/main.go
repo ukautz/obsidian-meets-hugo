@@ -88,8 +88,10 @@ func main() {
 			HugoRoot:     c.String("hugo-root"),
 			SubPath:      c.String("sub-path"),
 			FrontMatter:  addFrontMatter,
-			ConvertName:  strcase.ToKebab,
-			TagsKey:      c.String("tags-key"),
+			ConvertName: func(name string) (link string) {
+				return omh.Sanitize(strcase.ToKebab(name))
+			},
+			TagsKey: c.String("tags-key"),
 		}
 
 		return converter.Run()
@@ -99,7 +101,6 @@ func main() {
 		log.Fatal(err)
 	}
 }
-
 func createFilter(c *cli.Context) omh.ObsidianFilter {
 	filters := make([]omh.ObsidianFilter, 0)
 	if includes := c.StringSlice("include-tag"); len(includes) > 0 {
