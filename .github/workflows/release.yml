@@ -1,0 +1,43 @@
+name: Upload Release Asset
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release:
+    name: Upload Release Asset
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: "^1.17"
+      - run: go version
+      - name: Build binaries
+        run: |
+          GOOS=linux GOARCH=amd64 go build -o dist/omh.linux-amd64 cmds/omh/main.go
+          GOOS=linux GOARCH=arm64 go build -o dist/omh.linux-arm64 cmds/omh/main.go
+          GOOS=darwin GOARCH=amd64 go build -o dist/omh.darwin-amd64 cmds/omh/main.go
+          GOOS=darwin GOARCH=arm64 go build -o dist/omh.darwin-arm64 cmds/omh/main.go
+          GOOS=windows GOARCH=amd64 go build -o dist/omh.windows-amd64.exe cmds/omh/main.go
+      - name: Create archives
+        run: |
+          set -x
+          cd dist
+          for asset in ./omh.*; do
+            gzip --keep $asset
+          done
+      - name: Create release
+        run: |
+          set -x
+          assets=()
+          for asset in ./dist/omh.*; do
+            assets+=("-a" "$asset")
+          done
+          tag_name="${GITHUB_REF##*/}"
+          hub release create "${assets[@]}" -m "$tag_name" "$tag_name"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
