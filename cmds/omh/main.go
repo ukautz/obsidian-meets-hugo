@@ -4,9 +4,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	"github.com/iancoleman/strcase"
 	log "github.com/sirupsen/logrus"
+	"github.com/thlib/go-timezone-local/tzlocal"
 	omh "github.com/ukautz/obsidian-meets-hugo/pkg"
 	"github.com/urfave/cli/v2"
 )
@@ -59,6 +61,12 @@ func main() {
 			Aliases: []string{"R"},
 			Usage:   "Whether to recurse the Obsidian Root directory (or not and then ignore sub directories..)",
 		},
+		&cli.StringFlag{
+			Name:    "time-zone",
+			Aliases: []string{"z"},
+			Usage:   "The time zone all output dates should have",
+			Value:   loadTimeZone(),
+		},
 		&cli.BoolFlag{
 			Name:    "debug",
 			Aliases: []string{"D"},
@@ -75,6 +83,12 @@ func main() {
 		if err != nil {
 			return err
 		}
+
+		timeZone, err := time.LoadLocation(c.String("time-zone"))
+		if err != nil {
+			return fmt.Errorf("failed to parse time zone: %w", err)
+		}
+		omh.TimeZone = timeZone
 
 		// is there additional front matter?
 		addFrontMatter := make(map[string]interface{})
@@ -101,6 +115,7 @@ func main() {
 		log.Fatal(err)
 	}
 }
+
 func createFilter(c *cli.Context) omh.ObsidianFilter {
 	filters := make([]omh.ObsidianFilter, 0)
 	if includes := c.StringSlice("include-tag"); len(includes) > 0 {
@@ -139,6 +154,14 @@ func createFilter(c *cli.Context) omh.ObsidianFilter {
 		}
 		return true
 	}
+}
+
+func loadTimeZone() string {
+	tz, err := tzlocal.RuntimeTZ()
+	if err != nil {
+		return "UTC"
+	}
+	return tz
 }
 
 func strsToBoolMap(strs []string) map[string]bool {

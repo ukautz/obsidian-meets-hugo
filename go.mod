@@ -17,6 +17,7 @@ require (
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/russross/blackfriday/v2 v2.0.1 // indirect
 	github.com/shurcooL/sanitized_anchor_name v1.0.0 // indirect
-	golang.org/x/sys v0.0.0-20191026070338-33540a1f6037 // indirect
+	github.com/thlib/go-timezone-local v0.0.0-20210907160436-ef149e42d28e // indirect
+	golang.org/x/sys v0.0.0-20210831042530-f4d43177bf5e // indirect
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c // indirect
 )
