@@ -49,7 +49,7 @@ func (note ObsidianNote) HugoFrontMatter(added map[string]interface{}) map[strin
 		if err != nil {
 			log.Warnf("failed to extract date for %s: %s", note.Title, err)
 		} else if date != nil {
-			hugo["date"] = date.Format(time.RFC3339)
+			hugo["date"] = date.UTC().Format(time.RFC3339)
 		}
 	}
 
@@ -59,20 +59,25 @@ func (note ObsidianNote) HugoFrontMatter(added map[string]interface{}) map[strin
 }
 
 func (note ObsidianNote) extractDate() (*time.Time, error) {
-
 	var date string
-	if note.Has("date updated") {
-		date = note.String("date updated")
-	} else if note.Has("date created") {
-		date = note.String("date created")
+	for _, key := range []string{"date updated", "date created"} {
+		if note.Has(key) {
+			date = note.String(key)
+			break
+		}
 	}
-
 	if date == "" {
 		return nil, nil
 	}
 
+	var d time.Time
+	var err error
 	for _, format := range obsidianDateFormats {
-		d, err := time.Parse(format, date)
+		if strings.Contains(format, "Z") {
+			d, err = time.Parse(format, date)
+		} else {
+			d, err = time.ParseInLocation(format, date, TimeZone)
+		}
 		if err == nil {
 			return &d, nil
 		}
